@@ -9,7 +9,6 @@
 import UIKit
 
 class CollectionViewCell: UICollectionViewCell {
-
     override func prepareForReuse() {
         super.prepareForReuse()
         subviews.forEach { $0.removeFromSuperview() }
@@ -19,5 +18,4 @@ class CollectionViewCell: UICollectionViewCell {
         contentView.addSubview(content)
         content.frame.size = size
     }
-
 }

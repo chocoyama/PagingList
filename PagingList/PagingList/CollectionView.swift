@@ -14,7 +14,7 @@ struct CollectionView<Section: Hashable, Item: Hashable, Content>: UIViewControl
     private let items: [Item]
     private let collectionViewLayout: CollectionViewLayoutContainer
     private let viewController: UICollectionViewController
-    private let onSelected: ((Item) -> Void)?
+    private let onSelect: ((Item) -> Void)?
     private let content: (Item) -> Content
     
     init(
@@ -27,7 +27,7 @@ struct CollectionView<Section: Hashable, Item: Hashable, Content>: UIViewControl
         self.items = items
         self.collectionViewLayout = layout
         self.viewController = UICollectionViewController(collectionViewLayout: collectionViewLayout.layout)
-        self.onSelected = nil
+        self.onSelect = nil
         self.content = content
     }
     
@@ -35,19 +35,19 @@ struct CollectionView<Section: Hashable, Item: Hashable, Content>: UIViewControl
         sections: [Section],
         items: [Item],
         layout: CollectionViewLayoutContainer,
-        onSelected: ((Item) -> Void)?,
+        onSelect: ((Item) -> Void)?,
         @ViewBuilder content: @escaping (Item) -> Content
     ) {
         self.sections = sections
         self.items = items
         self.collectionViewLayout = layout
         self.viewController = UICollectionViewController(collectionViewLayout: collectionViewLayout.layout)
-        self.onSelected = onSelected
+        self.onSelect = onSelect
         self.content = content
     }
     
     func makeCoordinator() -> CollectionView.Coordinator {
-        Coordinator(self, collectionView: viewController.collectionView!, content: content, action: onSelected)
+        Coordinator(self, collectionView: viewController.collectionView!, content: content, onSelect: onSelect)
     }
     
     func makeUIViewController(context: UIViewControllerRepresentableContext<CollectionView>) -> UICollectionViewController {
@@ -64,8 +64,8 @@ struct CollectionView<Section: Hashable, Item: Hashable, Content>: UIViewControl
         context.coordinator.dataSource.apply(snapshot)
     }
     
-    func onSelected(perform action: @escaping (Item) -> Void) -> Self {
-        CollectionView(sections: sections, items: items, layout: collectionViewLayout, onSelected: action, content: content)
+    func onSelect(perform action: @escaping (Item) -> Void) -> Self {
+        CollectionView(sections: sections, items: items, layout: collectionViewLayout, onSelect: action, content: content)
     }
 }
 
@@ -74,33 +74,31 @@ extension CollectionView {
         let collectionViewController: CollectionView
         let dataSource: UICollectionViewDiffableDataSource<Section, Item>
         let content: (Item) -> Content
-        let action: ((Item) -> Void)?
+        let onSelect: ((Item) -> Void)?
         
         init(
             _ collectionViewController: CollectionView,
             collectionView: UICollectionView,
             content: @escaping (Item) -> Content,
-            action: ((Item) -> Void)?
+            onSelect: ((Item) -> Void)?
         ) {
             self.collectionViewController = collectionViewController
             self.content = content
-            self.action = action
+            self.onSelect = onSelect
             
-            collectionView.register(UINib(nibName: "CollectionViewCell", bundle: nil), forCellWithReuseIdentifier: "CollectionViewCell")
-            
+            let cellIdentifier = "CollectionViewCell"
+            collectionView.register(UINib(nibName: cellIdentifier, bundle: nil), forCellWithReuseIdentifier: cellIdentifier)
             dataSource = UICollectionViewDiffableDataSource<Section, Item>(collectionView: collectionView) { (collectionView, indexPath, element) -> UICollectionViewCell? in
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CollectionViewCell", for: indexPath) as! CollectionViewCell
-                cell.set(
-                    content: UIHostingController(rootView: content(element)).view,
-                    size: collectionViewController.collectionViewLayout.itemSize
-                )
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! CollectionViewCell
+                cell.set(content: UIHostingController(rootView: content(element)).view,
+                         size: collectionViewController.collectionViewLayout.itemSize)
                 return cell
             }
         }
         
         func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
             guard let item = dataSource.itemIdentifier(for: indexPath) else { return }
-            action?(item)
+            onSelect?(item)
         }
     }
 }
