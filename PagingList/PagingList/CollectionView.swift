@@ -23,7 +23,7 @@ struct CollectionView<Section: Hashable, Item: Hashable, Content>: UIViewControl
     private let collections: [Collection<Section, Item>]
     private let collectionViewLayout: UICollectionViewLayout
     private let viewController: UICollectionViewController
-    private var onSelect: ((Item) -> Void)?
+    private var onSelect: ((ItemContainer<Section, Item>) -> Void)?
     private var onScroll: ((Double) -> Void)?
     private let content: (ItemContainer<Section, Item>) -> Content
     
@@ -62,7 +62,7 @@ struct CollectionView<Section: Hashable, Item: Hashable, Content>: UIViewControl
         context.coordinator.dataSource.apply(snapshot, animatingDifferences: true)
     }
     
-    func onSelect(perform action: @escaping (Item) -> Void) -> Self {
+    func onSelect(perform action: @escaping (ItemContainer<Section, Item>) -> Void) -> Self {
         var collectionView = CollectionView(collections: collections, layout: collectionViewLayout, content: content)
         collectionView.onSelect = action
         collectionView.onScroll = onScroll
@@ -82,14 +82,14 @@ extension CollectionView {
         let collectionViewController: CollectionView
         let dataSource: UICollectionViewDiffableDataSource<Section, ItemContainer<Section, Item>>
         let content: (ItemContainer<Section, Item>) -> Content
-        let onSelect: ((Item) -> Void)?
+        let onSelect: ((ItemContainer<Section, Item>) -> Void)?
         let onScroll: ((Double) -> Void)?
         
         init(
             _ collectionViewController: CollectionView,
             collectionView: UICollectionView,
             content: @escaping (ItemContainer<Section, Item>) -> Content,
-            onSelect: ((Item) -> Void)?,
+            onSelect: ((ItemContainer<Section, Item>) -> Void)?,
             onScroll: ((Double) -> Void)?
         ) {
             self.collectionViewController = collectionViewController
@@ -109,7 +109,7 @@ extension CollectionView {
         
         func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
             guard let itemContainer = dataSource.itemIdentifier(for: indexPath) else { return }
-            onSelect?(itemContainer.item)
+            onSelect?(itemContainer)
         }
         
         func scrollViewDidScroll(_ scrollView: UIScrollView) {

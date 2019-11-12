@@ -22,8 +22,8 @@ struct ContentView: View {
                 layout: self.compositionalLayout(for: self.collections, with: geometry.size)
             ) { itemContainer in
                 self.view(for: itemContainer)
-            }.onSelect { (item) in
-                self.selectedItem = item
+            }.onSelect { (itemContainer) in
+                self.selectedItem = itemContainer.item
                 self.showingSheet = true
             }.onScroll(perform: { (percent) in
                 if percent > 0.8 {
