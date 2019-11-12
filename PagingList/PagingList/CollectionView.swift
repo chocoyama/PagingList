@@ -9,22 +9,24 @@
 import SwiftUI
 import UIKit
 
+struct Collection<Section: Hashable, Item: Hashable> {
+    let section: Section
+    let items: [Item]
+}
+
 struct CollectionView<Section: Hashable, Item: Hashable, Content>: UIViewControllerRepresentable where Content: View {
-    private let sections: [Section]
-    private let items: [Item]
+    private let collections: [Collection<Section, Item>]
     private let collectionViewLayout: CollectionViewLayoutContainer
     private let viewController: UICollectionViewController
     private var onSelect: ((Item) -> Void)?
     private let content: (Item) -> Content
     
     init(
-        sections: [Section],
-        items: [Item],
+        collections: [Collection<Section, Item>],
         layout: CollectionViewLayoutContainer,
         @ViewBuilder content: @escaping (Item) -> Content
     ) {
-        self.sections = sections
-        self.items = items
+        self.collections = collections
         self.collectionViewLayout = layout
         self.viewController = UICollectionViewController(collectionViewLayout: collectionViewLayout.layout)
         self.onSelect = nil
@@ -44,13 +46,13 @@ struct CollectionView<Section: Hashable, Item: Hashable, Content>: UIViewControl
     
     func updateUIViewController(_ uiViewController: UICollectionViewController, context: UIViewControllerRepresentableContext<CollectionView>) {
         var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
-        snapshot.appendSections(sections)
-        sections.forEach { snapshot.appendItems(items, toSection: $0) }
-        context.coordinator.dataSource.apply(snapshot)
+        snapshot.appendSections(collections.map { $0.section })
+        collections.forEach { snapshot.appendItems($0.items, toSection: $0.section) }
+        context.coordinator.dataSource.apply(snapshot, animatingDifferences: true)
     }
     
     func onSelect(perform action: @escaping (Item) -> Void) -> Self {
-        var collectionView = CollectionView(sections: sections, items: items, layout: collectionViewLayout, content: content)
+        var collectionView = CollectionView(collections: collections, layout: collectionViewLayout, content: content)
         collectionView.onSelect = action
         return collectionView
     }
