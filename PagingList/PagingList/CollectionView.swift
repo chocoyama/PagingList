@@ -7,33 +7,83 @@
 //
 
 import SwiftUI
+import UIKit
 
-struct CollectionView: View {
-    typealias Section = Int
-    typealias Item = String
+struct CollectionView<Section: Hashable, Item: Hashable, Cell: CellProvider>: UIViewControllerRepresentable where Cell.Element == Item {
+    private let sections: [Section]
+    private let items: [Item]
+    private let layout: CollectionViewLayout
+    private let viewController: UICollectionViewController
+    private let action: ((Item) -> Void)?
     
-    var body: some View {
-        GeometryReader { (geometry: GeometryProxy) in
-            CollectionViewController<Section, Item, SampleCollectionViewCell>(
-                sections: [0],
-                items: ["one", "two", "three"],
-                layout: .flow(
-                    size: .init(width: geometry.size.width / 2, height: geometry.size.width / 2),
-                    sectionInset: .zero,
-                    minimumLineSpacing: 0,
-                    minimumInteritemSpacing: 0
-                )
-            )
-            .onSelected { (item) in
-                print(item)
-            }
-            .frame(width: geometry.size.width, height: geometry.size.height)
-        }
+    init(
+        sections: [Section],
+        items: [Item],
+        layout: CollectionViewLayout
+    ) {
+        self.sections = sections
+        self.items = items
+        self.layout = layout
+        self.viewController = UICollectionViewController(collectionViewLayout: layout.build())
+        self.action = nil
+    }
+    
+    private init(
+        sections: [Section],
+        items: [Item],
+        layout: CollectionViewLayout,
+        action: ((Item) -> Void)?
+    ) {
+        self.sections = sections
+        self.items = items
+        self.layout = layout
+        self.viewController = UICollectionViewController(collectionViewLayout: layout.build())
+        self.action = action
+    }
+    
+    func makeCoordinator() -> CollectionView.Coordinator {
+        Coordinator(self, collectionView: viewController.collectionView!, action: action)
+    }
+    
+    func makeUIViewController(context: UIViewControllerRepresentableContext<CollectionView>) -> UICollectionViewController {
+        viewController.collectionView.dataSource = context.coordinator.dataSource
+        viewController.collectionView.delegate = context.coordinator
+        viewController.collectionView.alwaysBounceVertical = true
+        return viewController
+    }
+    
+    func updateUIViewController(_ uiViewController: UICollectionViewController, context: UIViewControllerRepresentableContext<CollectionView>) {
+        var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
+        snapshot.appendSections(sections)
+        sections.forEach { snapshot.appendItems(items, toSection: $0) }
+        context.coordinator.dataSource.apply(snapshot)
+    }
+    
+    func onSelected(perform action: @escaping (Item) -> Void) -> Self {
+        CollectionView(sections: sections, items: items, layout: layout, action: action)
     }
 }
 
-struct CollectionView_Previews: PreviewProvider {
-    static var previews: some View {
-        CollectionView()
+extension CollectionView {
+    class Coordinator: NSObject, UICollectionViewDelegate {
+        let collectionViewController: CollectionView
+        let dataSource: UICollectionViewDiffableDataSource<Section, Item>
+        let action: ((Item) -> Void)?
+        
+        init(
+            _ collectionViewController: CollectionView,
+            collectionView: UICollectionView,
+            action: ((Item) -> Void)?
+        ) {
+            self.collectionViewController = collectionViewController
+            self.action = action
+            collectionView.register(UINib(nibName: Cell.nibName, bundle: nil), forCellWithReuseIdentifier: Cell.reuseIdentifier)
+            dataSource = UICollectionViewDiffableDataSource<Section, Item>(collectionView: collectionView, cellProvider: Cell.provide)
+        }
+        
+        func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+            guard let item = dataSource.itemIdentifier(for: indexPath) else { return }
+            action?(item)
+        }
     }
 }

@@ -9,8 +9,26 @@
 import SwiftUI
 
 struct ContentView: View {
+    typealias Section = Int
+    typealias Item = String
+    
     var body: some View {
-        CollectionView()
+        GeometryReader { (geometry: GeometryProxy) in
+            CollectionView<Section, Item, SampleCollectionViewCell>(
+                sections: [0],
+                items: ["one", "two", "three"],
+                layout: .flow(
+                    size: .init(width: geometry.size.width / 2, height: geometry.size.width / 2),
+                    sectionInset: .zero,
+                    minimumLineSpacing: 0,
+                    minimumInteritemSpacing: 0
+                )
+            )
+            .onSelected { (item) in
+                print(item)
+            }
+            .frame(width: geometry.size.width, height: geometry.size.height)
+        }
     }
 }
 
