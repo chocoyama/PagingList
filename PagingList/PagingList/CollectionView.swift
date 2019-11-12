@@ -14,7 +14,7 @@ struct CollectionView<Section: Hashable, Item: Hashable, Content>: UIViewControl
     private let items: [Item]
     private let collectionViewLayout: CollectionViewLayoutContainer
     private let viewController: UICollectionViewController
-    private let onSelect: ((Item) -> Void)?
+    private var onSelect: ((Item) -> Void)?
     private let content: (Item) -> Content
     
     init(
@@ -28,21 +28,6 @@ struct CollectionView<Section: Hashable, Item: Hashable, Content>: UIViewControl
         self.collectionViewLayout = layout
         self.viewController = UICollectionViewController(collectionViewLayout: collectionViewLayout.layout)
         self.onSelect = nil
-        self.content = content
-    }
-    
-    private init(
-        sections: [Section],
-        items: [Item],
-        layout: CollectionViewLayoutContainer,
-        onSelect: ((Item) -> Void)?,
-        @ViewBuilder content: @escaping (Item) -> Content
-    ) {
-        self.sections = sections
-        self.items = items
-        self.collectionViewLayout = layout
-        self.viewController = UICollectionViewController(collectionViewLayout: collectionViewLayout.layout)
-        self.onSelect = onSelect
         self.content = content
     }
     
@@ -65,7 +50,9 @@ struct CollectionView<Section: Hashable, Item: Hashable, Content>: UIViewControl
     }
     
     func onSelect(perform action: @escaping (Item) -> Void) -> Self {
-        CollectionView(sections: sections, items: items, layout: collectionViewLayout, onSelect: action, content: content)
+        var collectionView = CollectionView(sections: sections, items: items, layout: collectionViewLayout, content: content)
+        collectionView.onSelect = action
+        return collectionView
     }
 }
 
