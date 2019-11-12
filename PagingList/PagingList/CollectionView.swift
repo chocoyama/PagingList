@@ -90,8 +90,8 @@ extension CollectionView {
             collectionView.register(UINib(nibName: cellIdentifier, bundle: nil), forCellWithReuseIdentifier: cellIdentifier)
             dataSource = UICollectionViewDiffableDataSource<Section, Item>(collectionView: collectionView) { (collectionView, indexPath, element) -> UICollectionViewCell? in
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! CollectionViewCell
-                cell.set(content: UIHostingController(rootView: content(element)).view,
-                         size: collectionViewController.collectionViewLayout.itemSize)
+                let content = UIHostingController(rootView: content(element)).view!
+                cell.set(content: content, size: collectionViewController.collectionViewLayout.itemSize)
                 return cell
             }
         }

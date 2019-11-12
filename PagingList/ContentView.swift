@@ -10,25 +10,27 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        GeometryReader { (geometry: GeometryProxy) in
-            CollectionView(
-                sections: [0],
-                items: ["one", "two", "three"],
-                layout: FlowLayoutContainer(size: .init(width: geometry.size.width / 2,
-                                                        height: geometry.size.width / 2))
-            ) { (item) in
-                VStack {
-                    Text("hoge")
-                    Text(item)
-                    HStack {
-                        Text("0")
-                        Text("1")
-                    }
-                }
-            }.onSelect { (item) in
-                print(item)
-            }.frame(width: geometry.size.width, height: geometry.size.height)
+        CollectionView(
+            sections: [0],
+            items: (0..<100).map({ "\($0)" }),
+            layout: FlowLayoutContainer(size: .init(width: 100, height: 100))
+        ) { (item) in
+            Text(item)
+        }.onSelect { (item) in
+            print(item)
         }
+//        GeometryReader { (geometry: GeometryProxy) in
+//            CollectionView(
+//                sections: [0],
+//                items: (0..<100).map({ "\($0)" }),
+//                layout: FlowLayoutContainer(size: .init(width: geometry.size.width / 2,
+//                                                        height: geometry.size.width / 2))
+//            ) { (item) in
+//                Text(item)
+//            }.onSelect { (item) in
+//                print(item)
+//            }.frame(width: geometry.size.width, height: geometry.size.height)
+//        }
     }
 }
 
