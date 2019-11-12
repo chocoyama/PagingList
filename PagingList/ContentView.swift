@@ -10,27 +10,18 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        CollectionView(
-            sections: [0],
-            items: (0..<100).map({ "\($0)" }),
-            layout: FlowLayoutContainer(size: .init(width: 100, height: 100))
-        ) { (item) in
-            Text(item)
-        }.onSelect { (item) in
-            print(item)
+        GeometryReader { (geometry: GeometryProxy) in
+            CollectionView(
+                sections: [0],
+                items: (0..<100).map({ "\($0)" }),
+                layout: FlowLayoutContainer(size: .init(width: geometry.size.width / 2,
+                                                        height: geometry.size.width / 2))
+            ) { (item) in
+                Text(item)
+            }.onSelect { (item) in
+                print(item)
+            }
         }
-//        GeometryReader { (geometry: GeometryProxy) in
-//            CollectionView(
-//                sections: [0],
-//                items: (0..<100).map({ "\($0)" }),
-//                layout: FlowLayoutContainer(size: .init(width: geometry.size.width / 2,
-//                                                        height: geometry.size.width / 2))
-//            ) { (item) in
-//                Text(item)
-//            }.onSelect { (item) in
-//                print(item)
-//            }.frame(width: geometry.size.width, height: geometry.size.height)
-//        }
     }
 }
 
