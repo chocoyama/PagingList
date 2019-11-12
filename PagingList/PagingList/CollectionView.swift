@@ -19,6 +19,7 @@ struct CollectionView<Section: Hashable, Item: Hashable, Content>: UIViewControl
     private let collectionViewLayout: CollectionViewLayoutContainer
     private let viewController: UICollectionViewController
     private var onSelect: ((Item) -> Void)?
+    private var onScrolled: ((Double) -> Void)?
     private let content: (Item) -> Content
     
     init(
@@ -30,11 +31,12 @@ struct CollectionView<Section: Hashable, Item: Hashable, Content>: UIViewControl
         self.collectionViewLayout = layout
         self.viewController = UICollectionViewController(collectionViewLayout: collectionViewLayout.layout)
         self.onSelect = nil
+        self.onScrolled = nil
         self.content = content
     }
     
     func makeCoordinator() -> CollectionView.Coordinator {
-        Coordinator(self, collectionView: viewController.collectionView!, content: content, onSelect: onSelect)
+        Coordinator(self, collectionView: viewController.collectionView!, content: content, onSelect: onSelect, onScrolled: onScrolled)
     }
     
     func makeUIViewController(context: UIViewControllerRepresentableContext<CollectionView>) -> UICollectionViewController {
@@ -54,6 +56,14 @@ struct CollectionView<Section: Hashable, Item: Hashable, Content>: UIViewControl
     func onSelect(perform action: @escaping (Item) -> Void) -> Self {
         var collectionView = CollectionView(collections: collections, layout: collectionViewLayout, content: content)
         collectionView.onSelect = action
+        collectionView.onScrolled = onScrolled
+        return collectionView
+    }
+    
+    func onScrolled(perform action: @escaping (Double) -> Void) -> Self {
+        var collectionView = CollectionView(collections: collections, layout: collectionViewLayout, content: content)
+        collectionView.onSelect = onSelect
+        collectionView.onScrolled = action
         return collectionView
     }
 }
@@ -64,16 +74,19 @@ extension CollectionView {
         let dataSource: UICollectionViewDiffableDataSource<Section, Item>
         let content: (Item) -> Content
         let onSelect: ((Item) -> Void)?
+        let onScrolled: ((Double) -> Void)?
         
         init(
             _ collectionViewController: CollectionView,
             collectionView: UICollectionView,
             content: @escaping (Item) -> Content,
-            onSelect: ((Item) -> Void)?
+            onSelect: ((Item) -> Void)?,
+            onScrolled: ((Double) -> Void)?
         ) {
             self.collectionViewController = collectionViewController
             self.content = content
             self.onSelect = onSelect
+            self.onScrolled = onScrolled
             
             let cellIdentifier = "CollectionViewCell"
             collectionView.register(UINib(nibName: cellIdentifier, bundle: nil), forCellWithReuseIdentifier: cellIdentifier)
@@ -88,6 +101,14 @@ extension CollectionView {
         func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
             guard let item = dataSource.itemIdentifier(for: indexPath) else { return }
             onSelect?(item)
+        }
+        
+        func scrollViewDidScroll(_ scrollView: UIScrollView) {
+            guard let collectionView = scrollView as? UICollectionView else { return }
+            let height = collectionView.contentSize.height
+            let y = collectionView.contentOffset.y + collectionView.frame.height
+            let offsetPercentage = y / height
+            onScrolled?(Double(offsetPercentage))
         }
     }
 }

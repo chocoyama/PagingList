@@ -31,22 +31,18 @@ struct ContentView: View {
             }.onSelect { (item) in
                 self.selectedItem = item
                 self.showingSheet = true
-            }.sheet(isPresented: self.$showingSheet) {
+            }.onScrolled(perform: { (percent) in
+                if percent > 0.8 {
+                    print("Should next fetch.")
+                } else {
+                    print("Ready to fetch.")
+                }
+            }).sheet(isPresented: self.$showingSheet) {
                 Text(self.selectedItem!.name)
             }
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
 
 enum Section: Hashable, CaseIterable {
     case first
