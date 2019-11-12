@@ -12,17 +12,27 @@ struct ContentView: View {
     typealias Section = Int
     typealias Item = String
     
+    struct FlowLayoutContainer: CollectionViewLayoutContainer {
+        let flowLayout: UICollectionViewFlowLayout
+        var layout: UICollectionViewLayout { flowLayout }
+        var itemSize: CGSize { flowLayout.itemSize }
+        
+        init(size: CGSize) {
+            let flowLayout = UICollectionViewFlowLayout()
+            flowLayout.itemSize = .init(width: size.width, height: size.height)
+            flowLayout.sectionInset = .zero
+            flowLayout.minimumLineSpacing = 0
+            flowLayout.minimumInteritemSpacing = 0
+            self.flowLayout = flowLayout
+        }
+    }
+    
     var body: some View {
         GeometryReader { (geometry: GeometryProxy) in
             CollectionView(
                 sections: [0],
                 items: ["one", "two", "three"],
-                layout: .flow(
-                    size: .init(width: geometry.size.width / 2, height: geometry.size.width / 2),
-                    sectionInset: .zero,
-                    minimumLineSpacing: 0,
-                    minimumInteritemSpacing: 0
-                )
+                layout: FlowLayoutContainer(size: .init(width: geometry.size.width / 2, height: geometry.size.width / 2))
             ) { (item: Item) in
                 VStack {
                     Text("hoge")

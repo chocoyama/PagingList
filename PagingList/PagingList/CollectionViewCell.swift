@@ -15,11 +15,9 @@ class CollectionViewCell: UICollectionViewCell {
         subviews.forEach { $0.removeFromSuperview() }
     }
     
-    func set(content: UIView, size: CGSize?) {
+    func set(content: UIView, size: CGSize) {
         contentView.addSubview(content)
-        if let size = size {
-            content.frame.size = size
-        }
+        content.frame.size = size
     }
 
 }

@@ -12,42 +12,42 @@ import UIKit
 struct CollectionView<Section: Hashable, Item: Hashable, Content>: UIViewControllerRepresentable where Content: View {
     private let sections: [Section]
     private let items: [Item]
-    private let layout: CollectionViewLayout
+    private let collectionViewLayout: CollectionViewLayoutContainer
     private let viewController: UICollectionViewController
-    private let action: ((Item) -> Void)?
+    private let onSelected: ((Item) -> Void)?
     private let content: (Item) -> Content
     
     init(
         sections: [Section],
         items: [Item],
-        layout: CollectionViewLayout,
+        layout: CollectionViewLayoutContainer,
         @ViewBuilder content: @escaping (Item) -> Content
     ) {
         self.sections = sections
         self.items = items
-        self.layout = layout
-        self.viewController = UICollectionViewController(collectionViewLayout: layout.build())
-        self.action = nil
+        self.collectionViewLayout = layout
+        self.viewController = UICollectionViewController(collectionViewLayout: collectionViewLayout.layout)
+        self.onSelected = nil
         self.content = content
     }
     
     private init(
         sections: [Section],
         items: [Item],
-        layout: CollectionViewLayout,
-        action: ((Item) -> Void)?,
+        layout: CollectionViewLayoutContainer,
+        onSelected: ((Item) -> Void)?,
         @ViewBuilder content: @escaping (Item) -> Content
     ) {
         self.sections = sections
         self.items = items
-        self.layout = layout
-        self.viewController = UICollectionViewController(collectionViewLayout: layout.build())
-        self.action = action
+        self.collectionViewLayout = layout
+        self.viewController = UICollectionViewController(collectionViewLayout: collectionViewLayout.layout)
+        self.onSelected = onSelected
         self.content = content
     }
     
     func makeCoordinator() -> CollectionView.Coordinator {
-        Coordinator(self, collectionView: viewController.collectionView!, content: content, action: action)
+        Coordinator(self, collectionView: viewController.collectionView!, content: content, action: onSelected)
     }
     
     func makeUIViewController(context: UIViewControllerRepresentableContext<CollectionView>) -> UICollectionViewController {
@@ -65,7 +65,7 @@ struct CollectionView<Section: Hashable, Item: Hashable, Content>: UIViewControl
     }
     
     func onSelected(perform action: @escaping (Item) -> Void) -> Self {
-        CollectionView(sections: sections, items: items, layout: layout, action: action, content: content)
+        CollectionView(sections: sections, items: items, layout: collectionViewLayout, onSelected: action, content: content)
     }
 }
 
@@ -92,7 +92,7 @@ extension CollectionView {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CollectionViewCell", for: indexPath) as! CollectionViewCell
                 cell.set(
                     content: UIHostingController(rootView: content(element)).view,
-                    size: collectionViewController.layout.itemSize
+                    size: collectionViewController.collectionViewLayout.itemSize
                 )
                 return cell
             }
