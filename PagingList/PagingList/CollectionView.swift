@@ -48,6 +48,7 @@ struct CollectionView<Section: Hashable, Item: Hashable, Content>: UIViewControl
         viewController.collectionView.dataSource = context.coordinator.dataSource
         viewController.collectionView.delegate = context.coordinator
         viewController.collectionView.alwaysBounceVertical = true
+        viewController.collectionView.backgroundColor = .systemBackground
         return viewController
     }
     
