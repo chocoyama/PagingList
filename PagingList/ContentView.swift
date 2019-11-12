@@ -14,7 +14,7 @@ struct ContentView: View {
     
     var body: some View {
         GeometryReader { (geometry: GeometryProxy) in
-            CollectionView<Section, Item, SampleCollectionViewCell>(
+            CollectionView(
                 sections: [0],
                 items: ["one", "two", "three"],
                 layout: .flow(
@@ -23,11 +23,18 @@ struct ContentView: View {
                     minimumLineSpacing: 0,
                     minimumInteritemSpacing: 0
                 )
-            )
-            .onSelected { (item) in
+            ) { (item: Item) in
+                VStack {
+                    Text("hoge")
+                    Text(item)
+                    HStack {
+                        Text("0")
+                        Text("1")
+                    }
+                }
+            }.onSelected { (item) in
                 print(item)
-            }
-            .frame(width: geometry.size.width, height: geometry.size.height)
+            }.frame(width: geometry.size.width, height: geometry.size.height)
         }
     }
 }

@@ -11,6 +11,13 @@ import UIKit
 enum CollectionViewLayout {
     case flow(size: CGSize? = nil, sectionInset: UIEdgeInsets?, minimumLineSpacing: CGFloat?, minimumInteritemSpacing: CGFloat?)
     
+    var itemSize: CGSize? {
+        switch self {
+        case let .flow(size, _, _, _):
+            return size
+        }
+    }
+    
     func build() -> UICollectionViewLayout {
         switch self {
         case let .flow(size, sectionInset, minimumLineSpacing, minimumInteritemSpacing):
