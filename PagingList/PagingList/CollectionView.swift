@@ -16,7 +16,7 @@ struct Collection<Section: Hashable, Item: Hashable> {
 
 struct CollectionView<Section: Hashable, Item: Hashable, Content>: UIViewControllerRepresentable where Content: View {
     private let collections: [Collection<Section, Item>]
-    private let collectionViewLayout: CollectionViewLayoutContainer
+    private let collectionViewLayout: UICollectionViewLayout
     private let viewController: UICollectionViewController
     private var onSelect: ((Item) -> Void)?
     private var onScrolled: ((Double) -> Void)?
@@ -24,12 +24,12 @@ struct CollectionView<Section: Hashable, Item: Hashable, Content>: UIViewControl
     
     init(
         collections: [Collection<Section, Item>],
-        layout: CollectionViewLayoutContainer,
+        layout: UICollectionViewLayout,
         @ViewBuilder content: @escaping (Item) -> Content
     ) {
         self.collections = collections
         self.collectionViewLayout = layout
-        self.viewController = UICollectionViewController(collectionViewLayout: collectionViewLayout.layout)
+        self.viewController = UICollectionViewController(collectionViewLayout: layout)
         self.onSelect = nil
         self.onScrolled = nil
         self.content = content
@@ -90,10 +90,10 @@ extension CollectionView {
             
             let cellIdentifier = "CollectionViewCell"
             collectionView.register(UINib(nibName: cellIdentifier, bundle: nil), forCellWithReuseIdentifier: cellIdentifier)
-            dataSource = UICollectionViewDiffableDataSource<Section, Item>(collectionView: collectionView) { (collectionView, indexPath, element) -> UICollectionViewCell? in
+            dataSource = UICollectionViewDiffableDataSource<Section, Item>(collectionView: collectionView) { (collectionView, indexPath, item) -> UICollectionViewCell? in
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! CollectionViewCell
-                let content = UIHostingController(rootView: content(element)).view!
-                cell.set(content: content, size: collectionViewController.collectionViewLayout.itemSize)
+                let content = UIHostingController(rootView: content(item)).view!
+                cell.set(content: content)
                 return cell
             }
         }

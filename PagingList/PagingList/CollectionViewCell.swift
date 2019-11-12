@@ -9,9 +9,15 @@
 import UIKit
 
 class CollectionViewCell: UICollectionViewCell {
-    func set(content: UIView, size: CGSize) {
+    func set(content: UIView) {
         contentView.subviews.forEach { $0.removeFromSuperview() }
         contentView.addSubview(content)
-        content.frame.size = size
+        content.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            contentView.leftAnchor.constraint(equalTo: content.leftAnchor),
+            contentView.topAnchor.constraint(equalTo: content.topAnchor),
+            contentView.rightAnchor.constraint(equalTo: content.rightAnchor),
+            contentView.bottomAnchor.constraint(equalTo: content.bottomAnchor)
+        ])
     }
 }

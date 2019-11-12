@@ -8,7 +8,6 @@
 
 import UIKit
 
-protocol CollectionViewLayoutContainer {
-    var layout: UICollectionViewLayout { get }
-    var itemSize: CGSize { get }
-}
+//protocol CollectionViewLayoutContainer {
+//    var layout: UICollectionViewLayout { get }
+//}
