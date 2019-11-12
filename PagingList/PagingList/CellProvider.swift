@@ -8,7 +8,7 @@
 
 import UIKit
 
-protocol CellProvider: UICollectionViewCell {
+protocol CellProvider {
     associatedtype Element
     static func provide(collectionView: UICollectionView, indexPath: IndexPath, element: Element) -> UICollectionViewCell
 }

@@ -15,7 +15,7 @@ class SampleCollectionViewCell: UICollectionViewCell {
 extension SampleCollectionViewCell: CellProvider {
     typealias Element = String
     
-    static func provide(collectionView: UICollectionView, indexPath: IndexPath, element: Element) -> UICollectionViewCell {
+    static func provide(collectionView: UICollectionView, indexPath: IndexPath, element: String) -> UICollectionViewCell {
         let sampleCell = dequeue(from: collectionView, at: indexPath)
         sampleCell.label.text = element
         sampleCell.backgroundColor = .white
