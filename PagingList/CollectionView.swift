@@ -17,14 +17,12 @@ struct CollectionView: View {
             CollectionViewController<Section, Item, SampleCollectionViewCell>(
                 sections: [0],
                 items: ["one", "two", "three"],
-                layout: {
-                    let layout = UICollectionViewFlowLayout()
-                    layout.itemSize = .init(width: geometry.size.width / 2, height: geometry.size.width / 2)
-                    layout.sectionInset = .zero
-                    layout.minimumLineSpacing = 0
-                    layout.minimumInteritemSpacing = 0
-                    return layout
-                }()
+                layout: .flow(
+                    size: .init(width: geometry.size.width / 2, height: geometry.size.width / 2),
+                    sectionInset: .zero,
+                    minimumLineSpacing: 0,
+                    minimumInteritemSpacing: 0
+                )
             ).frame(width: geometry.size.width, height: geometry.size.height)
         }
     }
