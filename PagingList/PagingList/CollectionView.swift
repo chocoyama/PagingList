@@ -23,7 +23,11 @@ struct CollectionView: View {
                     minimumLineSpacing: 0,
                     minimumInteritemSpacing: 0
                 )
-            ).frame(width: geometry.size.width, height: geometry.size.height)
+            )
+            .onSelected { (item) in
+                print(item)
+            }
+            .frame(width: geometry.size.width, height: geometry.size.height)
         }
     }
 }

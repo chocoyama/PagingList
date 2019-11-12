@@ -16,7 +16,7 @@ extension SampleCollectionViewCell: CellProvider {
     typealias Element = String
     
     static func provide(collectionView: UICollectionView, indexPath: IndexPath, element: Element) -> UICollectionViewCell {
-        let sampleCell = collectionView.dequeueReusableCell(withReuseIdentifier: "sample", for: indexPath) as! SampleCollectionViewCell
+        let sampleCell = dequeue(from: collectionView, at: indexPath)
         sampleCell.label.text = element
         sampleCell.backgroundColor = .white
         return sampleCell

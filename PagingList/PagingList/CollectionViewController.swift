@@ -9,31 +9,12 @@
 import SwiftUI
 import UIKit
 
-protocol CellProvider {
-    associatedtype Element
-    static func provide(collectionView: UICollectionView, indexPath: IndexPath, element: Element) -> UICollectionViewCell
-}
-
-enum CollectionViewLayout {
-    case flow(size: CGSize? = nil, sectionInset: UIEdgeInsets?, minimumLineSpacing: CGFloat?, minimumInteritemSpacing: CGFloat?)
-    
-    func build() -> UICollectionViewLayout {
-        switch self {
-        case let .flow(size, sectionInset, minimumLineSpacing, minimumInteritemSpacing):
-            let layout = UICollectionViewFlowLayout()
-            if let size = size { layout.itemSize = size }
-            if let sectionInset = sectionInset { layout.sectionInset = sectionInset }
-            if let minimumLineSpacing = minimumLineSpacing { layout.minimumLineSpacing = minimumLineSpacing }
-            if let minimumInteritemSpacing = minimumInteritemSpacing { layout.minimumInteritemSpacing = minimumInteritemSpacing }
-            return layout
-        }
-    }
-}
-
 struct CollectionViewController<Section: Hashable, Item: Hashable, Cell: CellProvider>: UIViewControllerRepresentable where Cell.Element == Item {
     private let sections: [Section]
     private let items: [Item]
+    private let layout: CollectionViewLayout
     private let viewController: UICollectionViewController
+    private let action: ((Item) -> Void)?
     
     init(
         sections: [Section],
@@ -42,15 +23,31 @@ struct CollectionViewController<Section: Hashable, Item: Hashable, Cell: CellPro
     ) {
         self.sections = sections
         self.items = items
+        self.layout = layout
         self.viewController = UICollectionViewController(collectionViewLayout: layout.build())
+        self.action = nil
+    }
+    
+    private init(
+        sections: [Section],
+        items: [Item],
+        layout: CollectionViewLayout,
+        action: ((Item) -> Void)?
+    ) {
+        self.sections = sections
+        self.items = items
+        self.layout = layout
+        self.viewController = UICollectionViewController(collectionViewLayout: layout.build())
+        self.action = action
     }
     
     func makeCoordinator() -> CollectionViewController.Coordinator {
-        Coordinator(self, collectionView: viewController.collectionView!)
+        Coordinator(self, collectionView: viewController.collectionView!, action: action)
     }
     
     func makeUIViewController(context: UIViewControllerRepresentableContext<CollectionViewController>) -> UICollectionViewController {
         viewController.collectionView.dataSource = context.coordinator.dataSource
+        viewController.collectionView.delegate = context.coordinator
         viewController.collectionView.alwaysBounceVertical = true
         return viewController
     }
@@ -61,17 +58,32 @@ struct CollectionViewController<Section: Hashable, Item: Hashable, Cell: CellPro
         sections.forEach { snapshot.appendItems(items, toSection: $0) }
         context.coordinator.dataSource.apply(snapshot)
     }
+    
+    func onSelected(perform action: @escaping (Item) -> Void) -> Self {
+        CollectionViewController(sections: sections, items: items, layout: layout, action: action)
+    }
 }
 
 extension CollectionViewController {
-    struct Coordinator {
+    class Coordinator: NSObject, UICollectionViewDelegate {
         let collectionViewController: CollectionViewController
         let dataSource: UICollectionViewDiffableDataSource<Section, Item>
+        let action: ((Item) -> Void)?
         
-        init(_ collectionViewController: CollectionViewController, collectionView: UICollectionView) {
+        init(
+            _ collectionViewController: CollectionViewController,
+            collectionView: UICollectionView,
+            action: ((Item) -> Void)?
+        ) {
             self.collectionViewController = collectionViewController
-            collectionView.register(UINib(nibName: String(describing: SampleCollectionViewCell.self), bundle: nil), forCellWithReuseIdentifier: "sample")
+            self.action = action
+            collectionView.register(UINib(nibName: Cell.nibName, bundle: nil), forCellWithReuseIdentifier: Cell.reuseIdentifier)
             dataSource = UICollectionViewDiffableDataSource<Section, Item>(collectionView: collectionView, cellProvider: Cell.provide)
+        }
+        
+        func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+            guard let item = dataSource.itemIdentifier(for: indexPath) else { return }
+            action?(item)
         }
     }
 }
