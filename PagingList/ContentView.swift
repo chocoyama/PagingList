@@ -20,12 +20,12 @@ struct ContentView: View {
             CollectionView(
                 collections: self.collections,
                 layout: self.compositionalLayout(for: self.collections, with: geometry.size)
-            ) { (item) in
-                Text(item.name)
+            ) { itemContainer in
+                self.view(for: itemContainer)
             }.onSelect { (item) in
                 self.selectedItem = item
                 self.showingSheet = true
-            }.onScrolled(perform: { (percent) in
+            }.onScroll(perform: { (percent) in
                 if percent > 0.8 {
                     print("Should next fetch.")
                 } else {
@@ -34,6 +34,25 @@ struct ContentView: View {
             }).sheet(isPresented: self.$showingSheet) {
                 Text(self.selectedItem!.name)
             }
+        }
+    }
+    
+    private func view(for itemContainer: ItemContainer<Section, Item>) -> some View {
+        switch itemContainer.section {
+        case .first:
+            return AnyView(
+                HStack {
+                    Text("Section1")
+                    Text(itemContainer.item.name)
+                }
+            )
+        case .second:
+            return AnyView(
+                VStack {
+                    Text("Section2")
+                    Text(itemContainer.item.name)
+                }
+            )
         }
     }
     

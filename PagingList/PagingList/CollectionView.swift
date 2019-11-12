@@ -14,29 +14,34 @@ struct Collection<Section: Hashable, Item: Hashable> {
     let items: [Item]
 }
 
+struct ItemContainer<Section: Hashable, Item: Hashable>: Hashable {
+    let section: Section
+    let item: Item
+}
+
 struct CollectionView<Section: Hashable, Item: Hashable, Content>: UIViewControllerRepresentable where Content: View {
     private let collections: [Collection<Section, Item>]
     private let collectionViewLayout: UICollectionViewLayout
     private let viewController: UICollectionViewController
     private var onSelect: ((Item) -> Void)?
-    private var onScrolled: ((Double) -> Void)?
-    private let content: (Item) -> Content
+    private var onScroll: ((Double) -> Void)?
+    private let content: (ItemContainer<Section, Item>) -> Content
     
     init(
         collections: [Collection<Section, Item>],
         layout: UICollectionViewLayout,
-        @ViewBuilder content: @escaping (Item) -> Content
+        @ViewBuilder content: @escaping (ItemContainer<Section, Item>) -> Content
     ) {
         self.collections = collections
         self.collectionViewLayout = layout
         self.viewController = UICollectionViewController(collectionViewLayout: layout)
         self.onSelect = nil
-        self.onScrolled = nil
+        self.onScroll = nil
         self.content = content
     }
     
     func makeCoordinator() -> CollectionView.Coordinator {
-        Coordinator(self, collectionView: viewController.collectionView!, content: content, onSelect: onSelect, onScrolled: onScrolled)
+        Coordinator(self, collectionView: viewController.collectionView!, content: content, onSelect: onSelect, onScroll: onScroll)
     }
     
     func makeUIViewController(context: UIViewControllerRepresentableContext<CollectionView>) -> UICollectionViewController {
@@ -47,23 +52,26 @@ struct CollectionView<Section: Hashable, Item: Hashable, Content>: UIViewControl
     }
     
     func updateUIViewController(_ uiViewController: UICollectionViewController, context: UIViewControllerRepresentableContext<CollectionView>) {
-        var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
+        var snapshot = NSDiffableDataSourceSnapshot<Section, ItemContainer<Section, Item>>()
         snapshot.appendSections(collections.map { $0.section })
-        collections.forEach { snapshot.appendItems($0.items, toSection: $0.section) }
+        collections.forEach { collection in
+            let itemContainers = collection.items.map { ItemContainer(section: collection.section, item: $0) }
+            snapshot.appendItems(itemContainers, toSection: collection.section)
+        }
         context.coordinator.dataSource.apply(snapshot, animatingDifferences: true)
     }
     
     func onSelect(perform action: @escaping (Item) -> Void) -> Self {
         var collectionView = CollectionView(collections: collections, layout: collectionViewLayout, content: content)
         collectionView.onSelect = action
-        collectionView.onScrolled = onScrolled
+        collectionView.onScroll = onScroll
         return collectionView
     }
     
-    func onScrolled(perform action: @escaping (Double) -> Void) -> Self {
+    func onScroll(perform action: @escaping (Double) -> Void) -> Self {
         var collectionView = CollectionView(collections: collections, layout: collectionViewLayout, content: content)
         collectionView.onSelect = onSelect
-        collectionView.onScrolled = action
+        collectionView.onScroll = action
         return collectionView
     }
 }
@@ -71,36 +79,36 @@ struct CollectionView<Section: Hashable, Item: Hashable, Content>: UIViewControl
 extension CollectionView {
     class Coordinator: NSObject, UICollectionViewDelegate {
         let collectionViewController: CollectionView
-        let dataSource: UICollectionViewDiffableDataSource<Section, Item>
-        let content: (Item) -> Content
+        let dataSource: UICollectionViewDiffableDataSource<Section, ItemContainer<Section, Item>>
+        let content: (ItemContainer<Section, Item>) -> Content
         let onSelect: ((Item) -> Void)?
-        let onScrolled: ((Double) -> Void)?
+        let onScroll: ((Double) -> Void)?
         
         init(
             _ collectionViewController: CollectionView,
             collectionView: UICollectionView,
-            content: @escaping (Item) -> Content,
+            content: @escaping (ItemContainer<Section, Item>) -> Content,
             onSelect: ((Item) -> Void)?,
-            onScrolled: ((Double) -> Void)?
+            onScroll: ((Double) -> Void)?
         ) {
             self.collectionViewController = collectionViewController
             self.content = content
             self.onSelect = onSelect
-            self.onScrolled = onScrolled
+            self.onScroll = onScroll
             
             let cellIdentifier = "CollectionViewCell"
             collectionView.register(UINib(nibName: cellIdentifier, bundle: nil), forCellWithReuseIdentifier: cellIdentifier)
-            dataSource = UICollectionViewDiffableDataSource<Section, Item>(collectionView: collectionView) { (collectionView, indexPath, item) -> UICollectionViewCell? in
+            dataSource = UICollectionViewDiffableDataSource(collectionView: collectionView) { (collectionView, indexPath, itemContainer) -> UICollectionViewCell? in
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! CollectionViewCell
-                let content = UIHostingController(rootView: content(item)).view!
+                let content = UIHostingController(rootView: content(itemContainer)).view!
                 cell.set(content: content)
                 return cell
             }
         }
         
         func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-            guard let item = dataSource.itemIdentifier(for: indexPath) else { return }
-            onSelect?(item)
+            guard let itemContainer = dataSource.itemIdentifier(for: indexPath) else { return }
+            onSelect?(itemContainer.item)
         }
         
         func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -108,7 +116,7 @@ extension CollectionView {
             let height = collectionView.contentSize.height
             let y = collectionView.contentOffset.y + collectionView.frame.height
             let offsetPercentage = y / height
-            onScrolled?(Double(offsetPercentage))
+            onScroll?(Double(offsetPercentage))
         }
     }
 }
