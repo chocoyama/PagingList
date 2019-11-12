@@ -12,23 +12,32 @@ struct ContentView: View {
     var body: some View {
         GeometryReader { (geometry: GeometryProxy) in
             CollectionView(
-                sections: [0],
-                items: (0..<100).map({ "\($0)" }),
+                sections: Section.allCases,
+                items: (1...100).map({ Item(name: "No. \($0)") }),
                 layout: FlowLayoutContainer(size: .init(width: geometry.size.width / 2,
                                                         height: geometry.size.width / 2))
             ) { (item) in
-                Text(item)
+                Text(item.name)
             }.onSelect { (item) in
-                print(item)
+                print(item.name)
             }
         }
     }
 }
 
+enum Section: Hashable, CaseIterable {
+    case items
+}
+
+struct Item: Hashable {
+    let name: String
+}
+
 struct FlowLayoutContainer: CollectionViewLayoutContainer {
-    let flowLayout: UICollectionViewFlowLayout
     var layout: UICollectionViewLayout { flowLayout }
     var itemSize: CGSize { flowLayout.itemSize }
+    
+    private let flowLayout: UICollectionViewFlowLayout
     
     init(size: CGSize) {
         let flowLayout = UICollectionViewFlowLayout()
