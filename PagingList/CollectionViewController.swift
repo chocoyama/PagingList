@@ -10,27 +10,25 @@ import SwiftUI
 import UIKit
 
 protocol CellProvider {
-    static func provide<T>(collectionView: UICollectionView, indexPath: IndexPath, element: T) -> UICollectionViewCell
+    associatedtype Element
+    static func provide(collectionView: UICollectionView, indexPath: IndexPath, element: Element) -> UICollectionViewCell
 }
 
-struct CollectionViewController<Section: Hashable, Item: Hashable>: UIViewControllerRepresentable {
+struct CollectionViewController<Section: Hashable, Item: Hashable, Cell: CellProvider>: UIViewControllerRepresentable where Cell.Element == Item {
     private let sections: [Section]
     private let items: [Item]
     private let layout: UICollectionViewLayout
     private let viewController: UICollectionViewController
-    private let cellProvider: CellProvider.Type
     
     init(
         sections: [Section],
         items: [Item],
-        layout: UICollectionViewLayout,
-        cellProvider: CellProvider.Type
+        layout: UICollectionViewLayout
     ) {
         self.sections = sections
         self.items = items
         self.layout = layout
         self.viewController = UICollectionViewController(collectionViewLayout: layout)
-        self.cellProvider = cellProvider
     }
     
     func makeCoordinator() -> CollectionViewController.Coordinator {
@@ -59,7 +57,7 @@ extension CollectionViewController {
         init(_ collectionViewController: CollectionViewController, collectionView: UICollectionView) {
             self.collectionViewController = collectionViewController
             collectionView.register(UINib(nibName: String(describing: SampleCollectionViewCell.self), bundle: nil), forCellWithReuseIdentifier: "sample")
-            dataSource = UICollectionViewDiffableDataSource<Section, Item>(collectionView: collectionView, cellProvider: collectionViewController.cellProvider.provide(collectionView:indexPath:element:))
+            dataSource = UICollectionViewDiffableDataSource<Section, Item>(collectionView: collectionView, cellProvider: Cell.provide)
         }
     }
 }

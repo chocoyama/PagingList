@@ -10,21 +10,7 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        GeometryReader { (geometry: GeometryProxy) in
-            CollectionViewController(
-                sections: [0],
-                items: [0, 1, 2],
-                layout: {
-                    let layout = UICollectionViewFlowLayout()
-                    layout.itemSize = .init(width: geometry.size.width / 2, height: geometry.size.width / 2)
-                    layout.sectionInset = .zero
-                    layout.minimumLineSpacing = 0
-                    layout.minimumInteritemSpacing = 0
-                    return layout
-                }(),
-                cellProvider: SampleCollectionViewCell.self
-            ).frame(width: geometry.size.width, height: geometry.size.height)
-        }
+        CollectionView()
     }
 }
 

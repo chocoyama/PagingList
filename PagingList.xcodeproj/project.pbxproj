@@ -16,6 +16,7 @@
 		8036D8DA237A4AE300DD33A9 /* CollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8036D8D9237A4AE300DD33A9 /* CollectionViewController.swift */; };
 		8036D8DF237A581700DD33A9 /* SampleCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8036D8DD237A581700DD33A9 /* SampleCollectionViewCell.swift */; };
 		8036D8E0237A581700DD33A9 /* SampleCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8036D8DE237A581700DD33A9 /* SampleCollectionViewCell.xib */; };
+		8036D8E2237A74EC00DD33A9 /* CollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8036D8E1237A74EC00DD33A9 /* CollectionView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +31,7 @@
 		8036D8D9237A4AE300DD33A9 /* CollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionViewController.swift; sourceTree = "<group>"; };
 		8036D8DD237A581700DD33A9 /* SampleCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleCollectionViewCell.swift; sourceTree = "<group>"; };
 		8036D8DE237A581700DD33A9 /* SampleCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SampleCollectionViewCell.xib; sourceTree = "<group>"; };
+		8036D8E1237A74EC00DD33A9 /* CollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,6 +74,7 @@
 				8036D8D9237A4AE300DD33A9 /* CollectionViewController.swift */,
 				8036D8DD237A581700DD33A9 /* SampleCollectionViewCell.swift */,
 				8036D8DE237A581700DD33A9 /* SampleCollectionViewCell.xib */,
+				8036D8E1237A74EC00DD33A9 /* CollectionView.swift */,
 			);
 			path = PagingList;
 			sourceTree = "<group>";
@@ -156,6 +159,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8036D8E2237A74EC00DD33A9 /* CollectionView.swift in Sources */,
 				8036D8DA237A4AE300DD33A9 /* CollectionViewController.swift in Sources */,
 				8036D8C6237A4AA800DD33A9 /* AppDelegate.swift in Sources */,
 				8036D8C8237A4AA800DD33A9 /* SceneDelegate.swift in Sources */,

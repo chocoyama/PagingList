@@ -13,9 +13,11 @@ class SampleCollectionViewCell: UICollectionViewCell {
 }
 
 extension SampleCollectionViewCell: CellProvider {
-    static func provide<Int>(collectionView: UICollectionView, indexPath: IndexPath, element: Int) -> UICollectionViewCell {
+    typealias Element = String
+    
+    static func provide(collectionView: UICollectionView, indexPath: IndexPath, element: Element) -> UICollectionViewCell {
         let sampleCell = collectionView.dequeueReusableCell(withReuseIdentifier: "sample", for: indexPath) as! SampleCollectionViewCell
-        sampleCell.label.text = "\(element)"
+        sampleCell.label.text = element
         sampleCell.backgroundColor = .white
         return sampleCell
     }
