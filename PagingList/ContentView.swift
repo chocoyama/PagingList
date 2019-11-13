@@ -15,8 +15,13 @@ struct ContentView: View {
     
     private let collections: [Collection<SampleSection, AnyHashable>] = {
         var collections = [Collection<SampleSection, AnyHashable>]()
-        collections.append(Collection(section: .first, items: (0..<10).map { SampleItem(name: "\($0)") }))
-        collections.append(Collection(section: .second, items: (0..<10).map { SampleItem(name: "\($0)") }))
+        
+        let firstItems = (0..<10).map { SampleItem(name: "\($0)") }
+        collections.append(Collection(section: .first, items: firstItems))
+        
+        let secondItems = (0..<10).map { $0 }
+        collections.append(Collection(section: .second, items: secondItems))
+        
         return collections
     }()
 
@@ -42,9 +47,9 @@ struct ContentView: View {
     }
     
     private func view(for itemContainer: ItemContainer<SampleSection, AnyHashable>) -> some View {
-        let item = itemContainer.item as! SampleItem
         switch itemContainer.section {
         case .first:
+            let item = itemContainer.item as! SampleItem
             return AnyView(
                 HStack {
                     Text("Section1")
@@ -52,19 +57,26 @@ struct ContentView: View {
                 }
             )
         case .second:
+            let item = itemContainer.item as! Int
             return AnyView(
                 VStack {
                     Text("Section2")
-                    Text(item.name)
+                    Text("\(item)")
                 }
             )
         }
     }
     
     private func handleSelect(_ itemContainer: ItemContainer<SampleSection, AnyHashable>) {
-        let item = itemContainer.item as! SampleItem
-        self.selectedItem = item
-        self.showingSheet = true
+        switch itemContainer.section {
+        case .first:
+            let item = itemContainer.item as! SampleItem
+            self.selectedItem = item
+            self.showingSheet = true
+        case .second:
+            let item = itemContainer.item as! Int
+            print(item)
+        }
     }
     
     private func compositionalLayout(for collections: [Collection<SampleSection, AnyHashable>], with geometrySize: CGSize) -> UICollectionViewCompositionalLayout {
