@@ -9,22 +9,21 @@
 import SwiftUI
 import UIKit
 
-struct Collection<Section: Hashable, Item: Hashable> {
+struct Collection<Section: Hashable, Item: Hashable>: Hashable {
     let section: Section
-    let items: [Item]
-    let shouldSelect: Bool
-    
-    init(section: Section, items: [Item], shouldSelect: Bool = true) {
-        self.section = section
-        self.items = items
-        self.shouldSelect = shouldSelect
-    }
+    let items: [ItemContainer<Section, Item>]
 }
 
 struct ItemContainer<Section: Hashable, Item: Hashable>: Hashable {
     let section: Section
     let item: Item
     let shouldSelect: Bool
+    
+    init(section: Section, item: Item, shouldSelect: Bool = true) {
+        self.section = section
+        self.item = item
+        self.shouldSelect = shouldSelect
+    }
 }
 
 struct CollectionView<Section: Hashable, Item: Hashable, Content>: UIViewControllerRepresentable where Content: View {
@@ -64,7 +63,7 @@ struct CollectionView<Section: Hashable, Item: Hashable, Content>: UIViewControl
         var snapshot = NSDiffableDataSourceSnapshot<Section, ItemContainer<Section, Item>>()
         snapshot.appendSections(collections.map { $0.section })
         collections.forEach { collection in
-            let itemContainers = collection.items.map { ItemContainer(section: collection.section, item: $0, shouldSelect: collection.shouldSelect) }
+            let itemContainers = collection.items.map { ItemContainer(section: collection.section, item: $0.item, shouldSelect: $0.shouldSelect) }
             snapshot.appendItems(itemContainers, toSection: collection.section)
         }
         context.coordinator.dataSource.apply(snapshot, animatingDifferences: true)

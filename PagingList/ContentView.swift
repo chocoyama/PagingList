@@ -16,11 +16,13 @@ struct ContentView: View {
     private let collections: [Collection<SampleSection, AnyHashable>] = {
         var collections = [Collection<SampleSection, AnyHashable>]()
         
-        let firstItems = (0..<10).map { SampleItem(name: "\($0)") }
-        collections.append(Collection(section: .first, items: firstItems))
+        let firstItems = (0..<10).map { ItemContainer(section: SampleSection.first, item: AnyHashable(SampleItem(name: "\($0)"))) }
+        let firstCollection = Collection(section: .first, items: firstItems)
+        collections.append(firstCollection)
         
-        let secondItems = (0..<10).map { $0 }
-        collections.append(Collection(section: .second, items: secondItems, shouldSelect: false))
+        let secondItems = (0..<10).map { ItemContainer(section: SampleSection.second, item: AnyHashable($0), shouldSelect: false) }
+        let secondCollection = Collection(section: .second, items: secondItems)
+        collections.append(secondCollection)
         
         return collections
     }()
