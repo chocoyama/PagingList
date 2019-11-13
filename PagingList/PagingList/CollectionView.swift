@@ -12,11 +12,19 @@ import UIKit
 struct Collection<Section: Hashable, Item: Hashable> {
     let section: Section
     let items: [Item]
+    let shouldSelect: Bool
+    
+    init(section: Section, items: [Item], shouldSelect: Bool = true) {
+        self.section = section
+        self.items = items
+        self.shouldSelect = shouldSelect
+    }
 }
 
 struct ItemContainer<Section: Hashable, Item: Hashable>: Hashable {
     let section: Section
     let item: Item
+    let shouldSelect: Bool
 }
 
 struct CollectionView<Section: Hashable, Item: Hashable, Content>: UIViewControllerRepresentable where Content: View {
@@ -56,7 +64,7 @@ struct CollectionView<Section: Hashable, Item: Hashable, Content>: UIViewControl
         var snapshot = NSDiffableDataSourceSnapshot<Section, ItemContainer<Section, Item>>()
         snapshot.appendSections(collections.map { $0.section })
         collections.forEach { collection in
-            let itemContainers = collection.items.map { ItemContainer(section: collection.section, item: $0) }
+            let itemContainers = collection.items.map { ItemContainer(section: collection.section, item: $0, shouldSelect: collection.shouldSelect) }
             snapshot.appendItems(itemContainers, toSection: collection.section)
         }
         context.coordinator.dataSource.apply(snapshot, animatingDifferences: true)
@@ -118,6 +126,11 @@ extension CollectionView {
             let y = collectionView.contentOffset.y + collectionView.frame.height
             let offsetPercentage = y / height
             onScroll?(Double(offsetPercentage))
+        }
+        
+        func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+            guard let itemContainer = dataSource.itemIdentifier(for: indexPath) else { return true }
+            return itemContainer.shouldSelect
         }
     }
 }

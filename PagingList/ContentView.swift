@@ -20,7 +20,7 @@ struct ContentView: View {
         collections.append(Collection(section: .first, items: firstItems))
         
         let secondItems = (0..<10).map { $0 }
-        collections.append(Collection(section: .second, items: secondItems))
+        collections.append(Collection(section: .second, items: secondItems, shouldSelect: false))
         
         return collections
     }()
