@@ -34,13 +34,13 @@ struct ContentView: View {
                 self.view(for: itemContainer)
             }.onSelect { (itemContainer) in
                 self.handleSelect(itemContainer)
-            }.onScroll(perform: { (percent) in
+            }.onScroll { (percent) in
                 if percent > 0.8 {
                     print("Should next fetch.")
                 } else {
                     print("Ready to fetch.")
                 }
-            }).sheet(isPresented: self.$showingSheet) {
+            }.sheet(isPresented: self.$showingSheet) {
                 Text(self.selectedItem!.name)
             }
         }
@@ -82,7 +82,6 @@ struct ContentView: View {
     private func compositionalLayout(for collections: [Collection<SampleSection, AnyHashable>], with geometrySize: CGSize) -> UICollectionViewCompositionalLayout {
         UICollectionViewCompositionalLayout { (sectionIndex: Int, layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
             let collection = self.collections[sectionIndex]
-            
             
             let itemSize = NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1.0),
