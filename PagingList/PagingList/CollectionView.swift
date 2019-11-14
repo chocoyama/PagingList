@@ -12,6 +12,18 @@ import UIKit
 struct Collection<Section: Hashable, Item: Hashable>: Hashable {
     let section: Section
     let items: [ItemContainer<Section, Item>]
+    
+    private init(
+        section: Section,
+        items: [ItemContainer<Section, Item>]
+    ) {
+        self.section = section
+        self.items = items
+    }
+    
+    static func create(section: Section, items: [ItemContainer<Section, Item>]) -> Collection<Section, Item> {
+        Collection(section: section, items: items)
+    }
 }
 
 struct ItemContainer<Section: Hashable, Item: Hashable>: Hashable {
